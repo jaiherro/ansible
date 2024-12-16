@@ -1,0 +1,46 @@
+# Ansible runtime files
+*.retry
+*.pyc
+__pycache__/
+.ansible/
+
+# SSH keys and secrets
+*.pem
+*.key
+id_*
+*.pub
+
+# Environment variables and secrets
+.env
+vault.yml
+*vault.yml
+*.vault
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Custom inventory files that might contain sensitive data
+inventory/custom*
+inventory/production*

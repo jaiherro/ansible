@@ -1,0 +1,6 @@
+- name: Configure SSH and sudo settings
+  hosts: servers
+  become: true
+  
+  roles:
+    - ssh

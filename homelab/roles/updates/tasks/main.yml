@@ -1,0 +1,19 @@
+- name: Update apt cache and upgrade (Debian/Ubuntu)
+  when: ansible_pkg_mgr == 'apt'
+  apt:
+    update_cache: yes
+    upgrade: yes
+    autoremove: yes
+    autoclean: yes
+
+- name: Update dnf cache and upgrade (RHEL/Fedora)
+  when: ansible_pkg_mgr == 'dnf'
+  dnf:
+    update_cache: yes
+    update_only: no
+    state: latest
+
+- name: Remove unused dependencies (RHEL/Fedora)
+  when: ansible_pkg_mgr == 'dnf'
+  dnf:
+    autoremove: yes
