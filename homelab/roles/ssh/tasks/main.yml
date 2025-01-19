@@ -10,6 +10,12 @@
     state: present
     key: "{{ lookup('file', '~/.ssh/id_ed25519_backup.pub') }}"
 
+- name: Copy carbon SSH public key
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/carbon.pub') }}"
+
 - name: Update SSH configuration
   lineinfile:
     path: /etc/ssh/sshd_config
@@ -20,4 +26,11 @@
     - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no' }
     - { regexp: '^ChallengeResponseAuthentication', line: 'ChallengeResponseAuthentication no' }
     - { regexp: '^UsePAM', line: 'UsePAM no' }
-  notify: restart sshd
+
+- name: Configure passwordless sudo access
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^{{ ansible_user }}'
+    line: '{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+    state: present
