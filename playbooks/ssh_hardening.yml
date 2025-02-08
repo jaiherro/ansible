@@ -1,0 +1,60 @@
+---
+- name: Configure SSH Security
+  hosts: all
+  become: true
+  vars:
+    ssh_public_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIKm8Whiz7KcGzArrMB9NPHyUsLckYv+jCVcLxPObJvk"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOFhTNajU8kAGnJD8GWMsvM9GmU5iKmG375upAkhs0se"
+
+  tasks:
+    - name: Ensure root .ssh directory exists
+      file:
+        path: "/root/.ssh"
+        state: directory
+        mode: "0700"
+        owner: "root"
+        group: "root"
+
+    - name: Ensure user .ssh directory exists
+      file:
+        path: "/home/{{ ansible_user }}/.ssh"
+        state: directory
+        mode: "0700"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Add public keys to root authorized_keys
+      authorized_key:
+        user: "root"
+        state: present
+        key: "{{ item }}"
+      with_items: "{{ ssh_public_keys }}"
+
+    - name: Add public keys to user authorized_keys
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ item }}"
+      with_items: "{{ ssh_public_keys }}"
+
+    - name: Update SSH configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        backup: yes
+      with_items:
+        - regexp: "^PasswordAuthentication"
+          line: "PasswordAuthentication no"
+        - regexp: "^ChallengeResponseAuthentication"
+          line: "ChallengeResponseAuthentication no"
+        - regexp: "^UsePAM"
+          line: "UsePAM no"
+        - regexp: "^PubkeyAuthentication"
+          line: "PubkeyAuthentication yes"
+
+    - name: Restart SSH service
+      service:
+        name: sshd
+        state: restarted
